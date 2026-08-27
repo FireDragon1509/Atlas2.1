@@ -97,76 +97,72 @@
     </div>
 
     <script>
-        const status = document.getElementById("status");
-        const transcript = document.getElementById("transcript");
+const status = document.getElementById("status");
+const transcript = document.getElementById("transcript");
 
-        const SpeechRecognition =
-            window.SpeechRecognition ||
-            window.webkitSpeechRecognition;
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
 
-        if (!SpeechRecognition) {
-            status.textContent = "VOICE RECOGNITION NOT SUPPORTED";
-        } else {
+if (!SpeechRecognition) {
 
-            const recognition = new SpeechRecognition();
+    status.textContent = "VOICE NOT SUPPORTED";
 
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = "en-US";
+} else {
 
-            recognition.onstart = () => {
-                status.textContent = "LISTENING...";
-            };
+    const recognition = new SpeechRecognition();
 
-            recognition.onresult = (event) => {
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = true;
 
-                let text = "";
+    recognition.onstart = function () {
+        status.textContent = "LISTENING...";
+    };
 
-                for (
-                    let i = event.resultIndex;
-                    i < event.results.length;
-                    i++
-                ) {
-                    text += event.results[i][0].transcript;
-                }
+    recognition.onresult = function (event) {
 
-                transcript.textContent = text;
-            };
+        let text = "";
 
-            recognition.onerror = (event) => {
-                console.log("Speech error:", event.error);
-
-                if (event.error === "not-allowed") {
-                    status.textContent = "MICROPHONE ACCESS DENIED";
-                } else {
-                    status.textContent = "RECONNECTING...";
-                }
-            };
-
-            recognition.onend = () => {
-                status.textContent = "RECONNECTING...";
-
-                setTimeout(() => {
-                    try {
-                        recognition.start();
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }, 500);
-            };
-
-            // Automatically start listening
-            window.addEventListener("load", () => {
-                setTimeout(() => {
-                    try {
-                        recognition.start();
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }, 1000);
-            });
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            text += event.results[i][0].transcript;
         }
-    </script>
+
+        transcript.textContent = text;
+    };
+
+    recognition.onerror = function (event) {
+        console.log("Speech error:", event.error);
+        status.textContent = "ERROR: " + event.error;
+    };
+
+    recognition.onend = function () {
+        status.textContent = "LISTENING AGAIN...";
+
+        setTimeout(function () {
+            try {
+                recognition.start();
+            } catch (error) {
+                console.log(error);
+            }
+        }, 500);
+    };
+
+    window.addEventListener("load", function () {
+
+        setTimeout(function () {
+
+            try {
+                recognition.start();
+            } catch (error) {
+                console.log(error);
+            }
+
+        }, 1000);
+
+    });
+}
+</script>
 
 </body>
 </html>
