@@ -58,28 +58,27 @@
             text-shadow: 0 0 15px #00eaff;
         }
 
-        p {
-            margin-top: 12px;
+        #status {
+            margin-top: 15px;
             color: #7899a3;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             font-size: 12px;
+        }
+
+        #transcript {
+            margin-top: 20px;
+            color: white;
+            font-size: 16px;
+            min-height: 24px;
         }
 
         @keyframes pulse {
             0%, 100% {
                 transform: scale(1);
-                box-shadow:
-                    0 0 20px #00eaff,
-                    0 0 60px rgba(0, 234, 255, 0.4),
-                    inset 0 0 30px rgba(0, 234, 255, 0.3);
             }
 
             50% {
                 transform: scale(1.06);
-                box-shadow:
-                    0 0 35px #00eaff,
-                    0 0 90px rgba(0, 234, 255, 0.6),
-                    inset 0 0 45px rgba(0, 234, 255, 0.4);
             }
         }
     </style>
@@ -91,8 +90,83 @@
         <div class="core"></div>
 
         <h1>ATLAS</h1>
-        <p>ARTIFICIAL TECHNOLOGY & LOGIC ASSISTANT SYSTEM</p>
+
+        <div id="status">INITIALIZING...</div>
+
+        <div id="transcript"></div>
     </div>
+
+    <script>
+        const status = document.getElementById("status");
+        const transcript = document.getElementById("transcript");
+
+        const SpeechRecognition =
+            window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            status.textContent = "VOICE RECOGNITION NOT SUPPORTED";
+        } else {
+
+            const recognition = new SpeechRecognition();
+
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = "en-US";
+
+            recognition.onstart = () => {
+                status.textContent = "LISTENING...";
+            };
+
+            recognition.onresult = (event) => {
+
+                let text = "";
+
+                for (
+                    let i = event.resultIndex;
+                    i < event.results.length;
+                    i++
+                ) {
+                    text += event.results[i][0].transcript;
+                }
+
+                transcript.textContent = text;
+            };
+
+            recognition.onerror = (event) => {
+                console.log("Speech error:", event.error);
+
+                if (event.error === "not-allowed") {
+                    status.textContent = "MICROPHONE ACCESS DENIED";
+                } else {
+                    status.textContent = "RECONNECTING...";
+                }
+            };
+
+            recognition.onend = () => {
+                status.textContent = "RECONNECTING...";
+
+                setTimeout(() => {
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }, 500);
+            };
+
+            // Automatically start listening
+            window.addEventListener("load", () => {
+                setTimeout(() => {
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }, 1000);
+            });
+        }
+    </script>
 
 </body>
 </html>
