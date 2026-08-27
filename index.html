@@ -104,13 +104,52 @@ const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
+let recognition;
+let speaking = false;
+
+function speak(text) {
+    speaking = true;
+
+    status.textContent = "SPEAKING...";
+
+    const voice = new SpeechSynthesisUtterance(text);
+
+    voice.lang = "en-US";
+    voice.rate = 1;
+    voice.pitch = 1;
+    voice.volume = 1;
+
+    voice.onend = function () {
+        speaking = false;
+        status.textContent = "LISTENING...";
+
+        setTimeout(() => {
+            startListening();
+        }, 500);
+    };
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(voice);
+}
+
+function startListening() {
+
+    if (speaking) return;
+
+    try {
+        recognition.start();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 if (!SpeechRecognition) {
 
     status.textContent = "VOICE NOT SUPPORTED";
 
 } else {
 
-    const recognition = new SpeechRecognition();
+    recognition = new SpeechRecognition();
 
     recognition.lang = "en-US";
     recognition.continuous = false;
@@ -124,40 +163,56 @@ if (!SpeechRecognition) {
 
         let text = "";
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        for (
+            let i = event.resultIndex;
+            i < event.results.length;
+            i++
+        ) {
             text += event.results[i][0].transcript;
         }
 
         transcript.textContent = text;
+
+        if (event.results[event.results.length - 1].isFinal) {
+
+            const command = text.toLowerCase().trim();
+
+            if (
+                command.includes("hello atlas") ||
+                command.includes("hello at last")
+            ) {
+                speak("Hello. How can I assist you?");
+            }
+
+            else {
+                speak("I heard you say " + text);
+            }
+        }
     };
 
     recognition.onerror = function (event) {
         console.log("Speech error:", event.error);
-        status.textContent = "ERROR: " + event.error;
+
+        if (event.error === "not-allowed") {
+            status.textContent = "MICROPHONE ACCESS DENIED";
+        } else {
+            status.textContent = "LISTENING...";
+        }
     };
 
     recognition.onend = function () {
-        status.textContent = "LISTENING AGAIN...";
 
-        setTimeout(function () {
-            try {
-                recognition.start();
-            } catch (error) {
-                console.log(error);
-            }
-        }, 500);
+        if (!speaking) {
+            setTimeout(() => {
+                startListening();
+            }, 500);
+        }
     };
 
     window.addEventListener("load", function () {
 
-        setTimeout(function () {
-
-            try {
-                recognition.start();
-            } catch (error) {
-                console.log(error);
-            }
-
+        setTimeout(() => {
+            startListening();
         }, 1000);
 
     });
