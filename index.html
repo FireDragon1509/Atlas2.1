@@ -1,1 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS</title>
 
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #05080c;
+            color: #00eaff;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .atlas {
+            text-align: center;
+        }
+
+        .core {
+            width: 220px;
+            height: 220px;
+            border: 2px solid #00eaff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow:
+                0 0 20px #00eaff,
+                0 0 60px rgba(0, 234, 255, 0.4),
+                inset 0 0 30px rgba(0, 234, 255, 0.3);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        .core::before {
+            content: "";
+            width: 130px;
+            height: 130px;
+            border: 2px solid #00eaff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #00eaff;
+        }
+
+        h1 {
+            margin-top: 35px;
+            font-size: 48px;
+            letter-spacing: 12px;
+            text-shadow: 0 0 15px #00eaff;
+        }
+
+        p {
+            margin-top: 12px;
+            color: #7899a3;
+            letter-spacing: 4px;
+            font-size: 12px;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow:
+                    0 0 20px #00eaff,
+                    0 0 60px rgba(0, 234, 255, 0.4),
+                    inset 0 0 30px rgba(0, 234, 255, 0.3);
+            }
+
+            50% {
+                transform: scale(1.06);
+                box-shadow:
+                    0 0 35px #00eaff,
+                    0 0 90px rgba(0, 234, 255, 0.6),
+                    inset 0 0 45px rgba(0, 234, 255, 0.4);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="atlas">
+        <div class="core"></div>
+
+        <h1>ATLAS</h1>
+        <p>ARTIFICIAL TECHNOLOGY & LOGIC ASSISTANT SYSTEM</p>
+    </div>
+
+</body>
+</html>
