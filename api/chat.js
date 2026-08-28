@@ -1,4 +1,26 @@
 export default async function handler(req, res) {
+    // Allow requests from the ATLAS website
+    res.setHeader(
+        "Access-Control-Allow-Origin",
+        "*"
+    );
+
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "POST, OPTIONS"
+    );
+
+    res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type"
+    );
+
+    // Handle browser CORS check
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+
+    // Only accept POST requests
     if (req.method !== "POST") {
         return res.status(405).json({
             error: "Method not allowed"
@@ -14,7 +36,7 @@ export default async function handler(req, res) {
             });
         }
 
-        const response = await fetch(
+        const groqResponse = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
             {
                 method: "POST",
@@ -32,7 +54,7 @@ export default async function handler(req, res) {
                         {
                             role: "system",
                             content:
-                                "You are ATLAS, a personal AI assistant. Your personality is intelligent, calm, helpful, and slightly futuristic. Keep responses concise because they will be spoken aloud."
+                                "You are ATLAS, a personal AI assistant. You are intelligent, calm, helpful, concise, and futuristic. Your responses will be spoken aloud, so keep them natural and reasonably short."
                         },
                         {
                             role: "user",
@@ -46,13 +68,14 @@ export default async function handler(req, res) {
             }
         );
 
-        const data = await response.json();
+        const data = await groqResponse.json();
 
-        if (!response.ok) {
-            console.error("Groq error:", data);
+        console.log("Groq response:", data);
 
+        if (!groqResponse.ok) {
             return res.status(500).json({
-                error: "AI request failed"
+                error: "Groq error",
+                details: data
             });
         }
 
@@ -61,7 +84,7 @@ export default async function handler(req, res) {
 
         if (!reply) {
             return res.status(500).json({
-                error: "No response from AI"
+                error: "No AI response received"
             });
         }
 
@@ -74,7 +97,8 @@ export default async function handler(req, res) {
         console.error("Server error:", error);
 
         return res.status(500).json({
-            error: "Server error"
+            error: "Server error",
+            details: error.message
         });
     }
 }
