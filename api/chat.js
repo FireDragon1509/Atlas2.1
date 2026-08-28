@@ -15,23 +15,33 @@ export default async function handler(req, res) {
         }
 
         const response = await fetch(
-            "https://api.openai.com/v1/responses",
+            "https://api.groq.com/openai/v1/chat/completions",
             {
                 method: "POST",
 
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization":
-                        `Bearer ${process.env.OPENAI_API_KEY}`
+                        `Bearer ${process.env.GROQ_API_KEY}`
                 },
 
                 body: JSON.stringify({
-                    model: "gpt-5-mini",
+                    model: "llama-3.3-70b-versatile",
 
-                    instructions:
-                        "You are ATLAS, a personal AI assistant. Be helpful, concise, intelligent, and conversational. Your responses will be spoken aloud, so avoid unnecessary formatting.",
+                    messages: [
+                        {
+                            role: "system",
+                            content:
+                                "You are ATLAS, a personal AI assistant. Your personality is intelligent, calm, helpful, and slightly futuristic. Keep responses concise because they will be spoken aloud."
+                        },
+                        {
+                            role: "user",
+                            content: message
+                        }
+                    ],
 
-                    input: message
+                    temperature: 0.7,
+                    max_tokens: 500
                 })
             }
         );
@@ -39,20 +49,29 @@ export default async function handler(req, res) {
         const data = await response.json();
 
         if (!response.ok) {
-            console.error(data);
+            console.error("Groq error:", data);
 
-            return res.status(response.status).json({
-                error: "OpenAI request failed"
+            return res.status(500).json({
+                error: "AI request failed"
+            });
+        }
+
+        const reply =
+            data.choices?.[0]?.message?.content;
+
+        if (!reply) {
+            return res.status(500).json({
+                error: "No response from AI"
             });
         }
 
         return res.status(200).json({
-            reply: data.output_text
+            reply: reply
         });
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Server error:", error);
 
         return res.status(500).json({
             error: "Server error"
