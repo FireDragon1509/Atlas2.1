@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATLAS AI Test</title>
+</head>
+
+<body style="font-family: Arial; padding: 40px;">
+
+    <h1>ATLAS AI TEST</h1>
+
+    <button onclick="testAI()">
+        TEST ATLAS
+    </button>
+
+    <p id="result"></p>
+
+    <script>
+
+        async function testAI() {
+
+            const result =
+                document.getElementById("result");
+
+            result.textContent =
+                "Testing ATLAS...";
+
+            try {
+
+                const response =
+                    await fetch(
+                        "https://atlas2-1.vercel.app/api/chat",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                message:
+                                    "Say hello to me as ATLAS."
+                            })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                result.textContent =
+                    JSON.stringify(data);
+
+            } catch (error) {
+
+                result.textContent =
+                    "ERROR: " + error.message;
+
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>
